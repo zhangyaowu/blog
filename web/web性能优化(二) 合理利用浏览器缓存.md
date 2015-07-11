@@ -13,27 +13,31 @@ web性能优化(四) 合并、删除js和样式表&利用chrome developer tools�
 
 ####http request和response中缓存相关概念
 浏览器第一次访问一个网页，会下载页面需要的所有资源。通过网络获取内容既缓慢，成本又高。http1.1(rfc2616)定义了多种缓存方式，可能出现在请求头或者响应头的属性可能有这些：  
-#####request中的：  
+request中的：  
 * If-Modify-Since: 请求头中带的浏览器缓存里保存的上次响应时保存的文件最后修改时间
-* If-None-Match: 请求头中带的浏览器缓存里保存的上次响应时保存的文件ETag
-#####response中的：  
+* If-None-Match: 请求头中带的浏览器缓存里保存的上次响应时保存的文件ETag  
+response中的：  
 * Last-Modified: 资源的最后修改时间，注意是文件的修改时间不是创建时间
 * Etag: 即Entity Tag，标识一个文件特定版本的字符串，可能是基于文件内容的哈希值或者是其它指纹码，不同服务器实现方式不同
 * Expires: 文件的绝对过期时间，在过期前，再次请求同一文件不会和服务端交互，而是直接从缓存里取。Expires属性的行为受Cache-Control属性影响，当响应头里同时又Cache-Control属性，且Cache-Control属性的值有max-age时，max-age优先级大于Expires，会重写Expires的值。Expires因为使用绝对时间，所以它的缺点是需要客户端和服务端保持时间同步，它的优点是在文件过期前和服务端完全没有交互，对于追求性能极致的网站有很大的诱惑力。且Expires属性是http1.0定义的，对于不支持http1.1的浏览器来说很宝贵
-* Cache-Control: 缓存控制策略，值可能有public/private max-age=xxxx/no-store/no-cache，public/private定义文件是否允许中继缓存(比如CDN)对其缓存，private仅允许浏览器缓存文件而不允许中继缓存存储文件，public都允许。max-age=xxxx/no-store/no-cache定义文件的缓存时长，max-age定义文件在指定的时间内无需去服务端检查是否有更新，单位是秒；no-store简单粗暴，禁止任何中继缓存和浏览器存储任何响应；no-cache指定浏览器每次都要去服务端检查文件是否有更新。检查更新的途径有多种，第一种是根据文件修改时间，request带If-Modify-Since即上次response中的Last-Modified，去服务端校验文件是否更新；二是根据文件的ETag，request带If-None-Match即上次response中的Etag，去服务端校验文件是否更新。我知道你一定会问request中f-Modify-Since和If-None-Match都有的话，是满足一个服务端就返回304吗？答案是否定的，需要两者都满足才会返回304，这篇文章的下半部分Tomcat DefaultServlet源码解读将从服务端源码角度解释这个问题。  
-关于ETag需要补充说一下，用还是不用是颇有争议的。ETag的问题一，企业级J2EE一般集群组网，大部分服务器(IIS、Apache)不同的节点对同一文件计算出来的Etag值是不一样的，如果不同次的请求分在不同的服务端，不重复下载文件这个初始的愿望就实现不了。ETag的另一个问题是Etag本身的计算就是一笔开销。对于必须通过最新修改日期之外的一些东西来验证的情况，规避这个问题可以通过简化Etag算法，减少ETag内容，如移除inode值、对于集群组网问题限制负载算法，如同一个sessionId或者source IP的请求落在相同的服务端节点上等。我的建议是根据最新修改日期能cover住的就去除ETag
+* Cache-Control: 缓存控制策略，值可能有public/private max-age=xxxx/no-store/no-cache，public/private定义文件是否允许中继缓存(比如CDN)对其缓存，private仅允许浏览器缓存文件而不允许中继缓存存储文件，public都允许。max-age=xxxx/no-store/no-cache定义文件的缓存时长，max-age定义文件在指定的时间内无需去服务端检查是否有更新，单位是秒；no-store简单粗暴，禁止任何中继缓存和浏览器存储任何响应；no-cache指定浏览器每次都要去服务端检查文件是否有更新。检查更新的途径有多种，第一种是根据文件修改时间，request带If-Modify-Since即上次response中的Last-Modified，去服务端校验文件是否更新；二是根据文件的ETag，request带If-None-Match即上次response中的Etag，去服务端校验文件是否更新。我知道你一定会问request中f-Modify-Since和If-None-Match都有的话，是满足一个服务端就返回304吗？答案是否定的，需要两者都满足才会返回304，这篇文章的下半部分Tomcat DefaultServlet源码解读将从服务端源码角度解释这个问题  
+关于ETag需要补充说一下，用还是不用是颇有争议的。ETag的问题一，企业级J2EE一般集群组网，大部分服务器(IIS、Apache)不同的节点对同一文件计算出来的Etag值是不一样的，如果不同次的请求分在不同的服务端，不重复下载文件这个初始的愿望就实现不了。ETag的另一个问题是Etag本身的计算就是一笔开销。对于必须通过最新修改日期之外的一些东西来验证的情况，规避这个问题可以通过简化Etag算法，减少ETag内容，如移除inode值、对于集群组网问题限制负载算法，如同一个sessionId或者source IP的请求落在相同的服务端节点上等。我的建议是根据最新修改日期能cover住的就去除ETag  
+
 好了，主要的概念介绍完了，问题也来了。如何合理利用缓存定义最佳缓存策略来提升web性能？对于不同的站点(企业级J2EE应用、门户网站、电商)策略不应相同，这边文章只分析企业级J2EE应用。  
+
 问题集中在这几个：
 * 定义最优Cache-Control策略
 * 版本升级，已缓存的文件有修改，如何废弃客户浏览器里已缓存的资源(不要试图让客户手动清浏览器缓存，客户完全可以说我不会也不愿意)
-* 精确控制每个文件的缓存策略
+* 精确控制每个文件的缓存策略  
+
 最优Cache-Control策略可以用以下决策树来制定：  
 ![](https://github.com/kaelhuawei/blog/blob/master/web/images/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%BA%8C)%20%E5%90%88%E7%90%86%E5%88%A9%E7%94%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BC%93%E5%AD%98/Cache-Control%20decision%20tree.jpg)  
+
 我给CKM制定的缓存策略是：  
 * 不启用ETag
 * 启用Last-Modified
 * html:no-cache,others:Last-Modified,Cache-Control:max-age=1892160000
-* 静态资源文件带版本号
+* 静态资源文件带版本号  
 
 ####Tomcat DefaultServlet源码解析  
 DefaultServlet是处理静态资源请求的servlet，下面以doGet为例，解析tomcat是如何利用缓存的。  
@@ -91,14 +95,14 @@ if ((cacheEntry.context == null) && ((path.endsWith("/")) || (path.endsWith("\\"
     }
 }
 ```  
-需要重点看checkIfHeaders(request, response, cacheEntry.attributes)方法。
+需要重点看checkIfHeaders(request, response, cacheEntry.attributes)方法。  
 ```java
 protected boolean checkIfHeaders(HttpServletRequest request, HttpServletResponse response, ResourceAttributes resourceAttributes) throws IOException
 {
     return (checkIfMatch(request, response, resourceAttributes)) && (checkIfModifiedSince(request, response, resourceAttributes)) && (checkIfNoneMatch(request, response, resourceAttributes)) && (checkIfUnmodifiedSince(request, response, resourceAttributes));
 }
 ```  
-这里的checkIfMatch、checkIfModifiedSince、checkIfNoneMatch、checkIfUnmodifiedSince分别是根据请求消息头里的If-Match、If-Modified-Since、If-None-Match、If-Unmodified-Since
+这里的checkIfMatch、checkIfModifiedSince、checkIfNoneMatch、checkIfUnmodifiedSince分别是根据请求消息头里的If-Match、If-Modified-Since、If-None-Match、If-Unmodified-Since  
 ```java
 protected boolean checkIfMatch(HttpServletRequest request, HttpServletResponse response, ResourceAttributes resourceAttributes) throws IOException
 {
@@ -197,7 +201,7 @@ protected boolean checkIfUnmodifiedSince(HttpServletRequest request, HttpServlet
     return true;
 }
 ```  
-继续走serveResource主分支代码：
+继续走serveResource主分支代码：  
 ```java
 String contentType = cacheEntry.attributes.getMimeType();
 if (contentType == null) {
@@ -230,7 +234,7 @@ if (contentLength == 0L) {
 }
 }
 ``` 
-serveResource剩余代码，向response的流中写响应。
+serveResource剩余代码，向response的流中写响应。  
 
 ####CKM缓存最佳实践
 * disable ETag
@@ -477,4 +481,4 @@ public class CacheFilter implements Filter
     }
 }
 ```  
-至此，性能提升已经超过500%，but，优化未完。
+至此，性能提升已经超过500%，but，优化未完。  
