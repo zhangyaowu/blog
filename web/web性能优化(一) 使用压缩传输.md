@@ -22,60 +22,42 @@ uee/app.datetime.js | 256KB
 
 看CKM的首页加载资源大小：
 
-
-
 标签详情页面加载资源大小：
 
-
-
-简直令人发指了，分别加载了2.8M和5.8M的资源！这篇文章谈谈从减少资源大小的方向上做优化，减少资源大小有两个途径，减小资源原始大小和减小网络传输大小。减小资源原始大小即ugilify静态文件，这个涉及前端工程化的咚咚，单独写一篇文章分析（web性能优化(三) ugilify静态文件&前端工程化），这篇文章从减小网络传输大小来优化。
-
-需要注意的是：
-
-压缩仅仅是减少了网络传输量
-消除不必要的数据是最好的（见 web性能优化(四) 合并、删除js和样式表&利用chrome developer tools做页面性能分析）
-压缩技术和算法有很多种，这边文章里没有特别指定的话特指gzip算法
-启用压缩传输需要服务器支持，这篇文章只介绍tomcat如何启用压缩传输
+简直令人发指了，分别加载了2.8M和5.8M的资源！这篇文章谈谈从减少资源大小的方向上做优化，减少资源大小有两个途径，减小资源原始大小和减小网络传输大小。减小资源原始大小即ugilify静态文件，这个涉及前端工程化的咚咚，单独写一篇文章分析（web性能优化(三) ugilify静态文件&前端工程化），这篇文章从减小网络传输大小来优化。  
+需要注意的是：  
+* 压缩仅仅是减少了网络传输量
+* 消除不必要的数据是最好的（见 web性能优化(四) 合并、删除js和样式表&利用chrome developer tools做页面性能分析）
+* 压缩技术和算法有很多种，这边文章里没有特别指定的话特指gzip算法
+* 启用压缩传输需要服务器支持，这篇文章只介绍tomcat如何启用压缩传输
 先来看教科书google的请求：
 
-
-
-没错，正是启用压缩传输，用cpu转移带宽压力的做法。这里看下tomcat怎么启用content-encoding.
-
-tomcat的文档(https://tomcat.apache.org/tomcat-7.0-doc/config/http.html#Connector_Comparison)对connector的compression属性是这么描述的：
-
+没错，正是启用压缩传输，用cpu转移带宽压力的做法。这里看下tomcat怎么启用content-encoding.  
+[tomcat的文档](https://tomcat.apache.org/tomcat-7.0-doc/config/http.html#Connector_Comparison "")对connector的compression属性是这么描述的：  
 The Connector may use HTTP/1.1 GZIP compression in an attempt to save server bandwidth. The acceptable values for the parameter is "off" (disable compression), "on" (allow compression, which causes text data to be compressed), "force" (forces compression in all cases), or a numerical integer value (which is equivalent to "on", but specifies the minimum amount of data before the output is compressed). If the content-length is not known and compression is set to "on" or more aggressive, the output will also be compressed. If not specified, this attribute is set to "off".
 
 Note: There is a tradeoff between using compression (saving your bandwidth) and using the sendfile feature (saving your CPU cycles). If the connector supports the sendfile feature, e.g. the NIO connector, using sendfile will take precedence over compression. The symptoms will be that static files greater that 48 Kb will be sent uncompressed. You can turn off sendfile by setting useSendfile attribute of the connector, as documented below, or change the sendfile usage threshold in the configuration of the DefaultServlet in the default conf/web.xml or in the web.xml of your web application.
 
 支持compression的connector有BIO, NIO 和 APR/native.
-
-看一个典型配置：
-
--xml代码
-1
+***
+看一个典型配置：  
+```xml
 compression="on" compressionMinSize="2048" noCompressionUserAgents="gozilla,traviata"
-2
 compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,text/json,application/x-javascript,application/javascript,application/json"
-
-其中，compression="on"启用response压缩传输能力；
-
-compressionMinSize="2048"超过2k的文件才压缩传输；
-
-noCompressionUserAgents="gozilla,traviata"不启用压缩传输的浏览器；
-
-compressableMimeType需要压缩传输的文件Mine；
+```
+其中，  
+* compression="on"启用response压缩传输能力
+* compressionMinSize="2048"超过2k的文件才压缩传输
+* CompressionUserAgents="gozilla,traviata"不启用压缩传输的浏览器
+* compressableMimeType需要压缩传输的文件Mine
 
 关于compressionMinSize要补充说一些，这个配置项存在的意义是，如果一个文件压缩前就足够小，当gzip字典大于压缩产生的节省字节数时，会出现压缩后的大小比原始大小还要打的情况。所以合理的设置一个阈值有重要的意义。
-
 看一下启用compression以后，首页的前后效果：
 
 
 
 
-
 标签详情的前后效果：
-
 
 
 
