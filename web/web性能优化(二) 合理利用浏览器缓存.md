@@ -1,20 +1,20 @@
 ####系列文章包括：
 [web性能优化(一) 使用压缩传输](https://github.com/kaelhuawei/blog/blob/master/web/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%B8%80)%20%E4%BD%BF%E7%94%A8%E5%8E%8B%E7%BC%A9%E4%BC%A0%E8%BE%93.md)  
-web性能优化(二)合理利用cache-control(本篇) 
-"web性能优化(二)合理利用cache-control")  
+web性能优化(二)合理利用cache-control(本篇)  
 web性能优化(三) uglify静态文件&前端工程化(待写)  
 web性能优化(四) 合并、删除js和样式表&利用chrome developer tools做页面性能分析(待写)  
 ####提纲：
-http request和response中缓存相关概念
-tomcat DefaultServlet源码解读，解析tomcat对静态资源的缓存处理策略
-CKM缓存最佳实践
+* http request和response中缓存相关概念
+* tomcat DefaultServlet源码解读，解析tomcat对静态资源的缓存处理策略
+* CKM缓存最佳实践  
+
 ***
 
 ####http request和response中缓存相关概念
-浏览器第一次访问一个网页，会下载页面需要的所有资源。通过网络获取内容既缓慢，成本又高。http1.1(即rfc2616)定义了多种缓存方式，可能出现在请求头或者响应头的属性可能有这些：
+浏览器第一次访问一个网页，会下载页面需要的所有资源。通过网络获取内容既缓慢，成本又高。http1.1(即rfc2616)定义了多种缓存方式，可能出现在请求头或者响应头的属性可能有这些：  
 request中的：
 * If-Modify-Since: 请求头中带的浏览器缓存里保存的上次响应时保存的文件最后修改时间
-* If-None-Match: 请求头中带的浏览器缓存里保存的上次响应时保存的文件ETag
+* If-None-Match: 请求头中带的浏览器缓存里保存的上次响应时保存的文件ETag  
 response中的：
 * Last-Modified: 资源的最后修改时间，注意是文件的修改时间不是创建时间
 * Etag: 即Entity Tag，标识一个文件特定版本的字符串，可能是基于文件内容的哈希值或者是其它指纹码，不同服务器实现方式不同
@@ -32,9 +32,10 @@ response中的：
 我给CKM制定的缓存策略是：  
 * 不启用ETag，启用Last-Modified，html:no-cache,others:Last-Modified
 * Cache-Control:max-age=1892160000
-* 静态资源文件带版本号
+* 静态资源文件带版本号  
 ####Tomcat DefaultServlet源码解析
-DefaultServlet是处理静态资源请求的servlet，下面以doGet为例，解析tomcat是如何利用缓存的。
+DefaultServlet是处理静态资源请求的servlet，下面以doGet为例，解析tomcat是如何利用缓存的。  
+```java
 protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws IOException, ServletException
 {
@@ -53,8 +54,9 @@ protected void serveResource(HttpServletRequest request, HttpServletResponse res
         }
     }
     CacheEntry cacheEntry = this.resources.lookupCache(path);//从缓存中取出本次请求的资源
-
-缓存的静态文件在容器启动的时候加载，注意attribute属性，默认初始是有文件的lastModified和ETag属性的。
+```  
+缓存的静态文件在容器启动的时候加载，注意attribute属性，默认初始是有文件的lastModified和ETag属性的。  
+```java
 if (!cacheEntry.exists)
 {
     String requestUri = (String)request.getAttribute("javax.servlet.include.request_uri");
@@ -85,15 +87,16 @@ if ((cacheEntry.context == null) && ((path.endsWith("/")) || (path.endsWith("\\"
         return;
     }
 }
- 
-需要重点看checkIfHeaders(request, response, cacheEntry.attributes)方法。
-
+```  
+需要重点看checkIfHeaders(request, response, cacheEntry.attributes)方法。  
+```java
 protected boolean checkIfHeaders(HttpServletRequest request, HttpServletResponse response, ResourceAttributes resourceAttributes) throws IOException
 {
     return (checkIfMatch(request, response, resourceAttributes)) && (checkIfModifiedSince(request, response, resourceAttributes)) && (checkIfNoneMatch(request, response, resourceAttributes)) && (checkIfUnmodifiedSince(request, response, resourceAttributes));
 }
+```  
 这里的checkIfMatch、checkIfModifiedSince、checkIfNoneMatch、checkIfUnmodifiedSince分别是根据请求消息头里的If-Match、If-Modified-Since、If-None-Match、If-Unmodified-Since
-
+```java
 protected boolean checkIfMatch(HttpServletRequest request, HttpServletResponse response, ResourceAttributes resourceAttributes) throws IOException
 {
     String eTag = resourceAttributes.getETag();
@@ -115,6 +118,8 @@ protected boolean checkIfMatch(HttpServletRequest request, HttpServletResponse r
 } 
 return true;
 }
+```  
+```java
 protected boolean checkIfModifiedSince(HttpServletRequest request, HttpServletResponse response, ResourceAttributes resourceAttributes)
 {
     try {
@@ -134,6 +139,8 @@ protected boolean checkIfModifiedSince(HttpServletRequest request, HttpServletRe
     }
     return true;
 }
+```  
+```java
 protected boolean checkIfNoneMatch(HttpServletRequest request, HttpServletResponse response, ResourceAttributes resourceAttributes) throws IOException
 {
     String eTag = resourceAttributes.getETag();
@@ -167,6 +174,8 @@ protected boolean checkIfNoneMatch(HttpServletRequest request, HttpServletRespon
     }
     return true;
 }
+```  
+```java
 protected boolean checkIfUnmodifiedSince(HttpServletRequest request, HttpServletResponse response, ResourceAttributes resourceAttributes) throws IOException
 {
     try
@@ -184,8 +193,9 @@ protected boolean checkIfUnmodifiedSince(HttpServletRequest request, HttpServlet
     }
     return true;
 }
+```  
 继续走serveResource主分支代码：
-
+```java
 String contentType = cacheEntry.attributes.getMimeType();
 if (contentType == null) {
     contentType = getServletContext().getMimeType(cacheEntry.name);
@@ -216,11 +226,12 @@ if (contentLength == 0L) {
     serveContent = false;
 }
 }
+```  
 serveResource剩余代码，向response的流中写响应。
 
-####CKM缓存最佳实践
-
-disable ETag
+####CKM缓存最佳实践  
+* disable ETag  
+```xml
 <filter>
 		<filter-name>disableETagFilter</filter-name>
 		<filter-class>com.huawei.universe.ckm.web.filter.DisableETagFilter</filter-class>
@@ -229,6 +240,8 @@ disable ETag
 		<filter-name>disableETagFilter</filter-name>
 		<servlet-name>default</servlet-name>
 	</filter-mapping>
+```  
+```java
 /*
  * 文 件 名:  DisableETagFilter.java
  * 版    权:  Huawei Technologies Co., Ltd. Copyright 1988-2015,  All rights reserved
@@ -291,8 +304,11 @@ public class DisableETagFilter implements Filter
     {
     }
 }
-tomcat DefaultServlet默认设置了response的Last-Modified头
-启用Expires、灵活控制Cache-Control
+```  
+
+* tomcat DefaultServlet默认设置了response的Last-Modified头
+* 启用Expires、灵活控制Cache-Control  
+```xml
 <filter-name>cacheFilter</filter-name>
 		<filter-class>com.huawei.universe.ckm.web.filter.CacheFilter</filter-class>
 		<init-param>
@@ -324,6 +340,8 @@ tomcat DefaultServlet默认设置了response的Last-Modified头
 		<filter-name>cacheFilter</filter-name>
 		<url-pattern>*.js</url-pattern>
 	</filter-mapping>
+```  
+```java
 /*
  * 文 件 名:  CacheFilter.java
  * 版    权:  Huawei Technologies Co., Ltd. Copyright 1988-2015,  All rights reserved
@@ -456,4 +474,5 @@ public class CacheFilter implements Filter
     {
     }
 }
-未完待续
+```  
+至此性能已经提升了500%，but，优化未完。
