@@ -1,10 +1,16 @@
+####系列文章包括：
+[web性能优化(一) 使用压缩传输](https://github.com/kaelhuawei/blog/blob/master/web/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%B8%80)%20%E4%BD%BF%E7%94%A8%E5%8E%8B%E7%BC%A9%E4%BC%A0%E8%BE%93.md)  
+web性能优化(二)合理利用cache-control(本篇) 
+"web性能优化(二)合理利用cache-control")  
+web性能优化(三) uglify静态文件&前端工程化(待写)  
+web性能优化(四) 合并、删除js和样式表&利用chrome developer tools做页面性能分析(待写)  
 ####提纲：
 http request和response中缓存相关概念
 tomcat DefaultServlet源码解读，解析tomcat对静态资源的缓存处理策略
 CKM缓存最佳实践
-====
+***
 
-#####http request和response中缓存相关概念
+####http request和response中缓存相关概念
 浏览器第一次访问一个网页，会下载页面需要的所有资源。通过网络获取内容既缓慢，成本又高。http1.1(即rfc2616)定义了多种缓存方式，可能出现在请求头或者响应头的属性可能有这些：
 request中的：
 * If-Modify-Since: 请求头中带的浏览器缓存里保存的上次响应时保存的文件最后修改时间
@@ -27,7 +33,7 @@ response中的：
 * 不启用ETag，启用Last-Modified，html:no-cache,others:Last-Modified
 * Cache-Control:max-age=1892160000
 * 静态资源文件带版本号
-#####Tomcat DefaultServlet源码解析
+####Tomcat DefaultServlet源码解析
 DefaultServlet是处理静态资源请求的servlet，下面以doGet为例，解析tomcat是如何利用缓存的。
 protected void doGet(HttpServletRequest request, HttpServletResponse response)
     throws IOException, ServletException
@@ -212,7 +218,7 @@ if (contentLength == 0L) {
 }
 serveResource剩余代码，向response的流中写响应。
 
-CKM缓存最佳实践
+####CKM缓存最佳实践
 
 disable ETag
 <filter>
