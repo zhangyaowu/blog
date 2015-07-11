@@ -5,32 +5,20 @@ web性能优化(三) ugilify静态文件&前端工程化<br>
 web性能优化(四) 合并、删除js和样式表&利用chrome developer tools做页面性能分析<br>
 ***
 企业级J2EE应用，大部分情况运行在企业内部网络，千兆网甚至万兆网。所以web性能是一个比较容易被忽略的问题。传统的J2EE web应用还没有现在百花齐放的框架和类库，往往打开一个页面加载的资源可能只有几十K，大部分情况不超过200K，所以每打开页面加载的资源量一直不被关注。但是，一旦把应用部署到公网、或者网络条件不是太好的时候，页面加载缓慢的问题就一下子暴露出来了。并且现在前端框架和类库百花齐放，下面是当今流行的框架和类库的原始大小和压缩后的大小：<br>
-<table>
-  <thead>
-    <tr>
-        <td>框架/库</td>
-        <td>大小</td>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-        <td>jquery-1.11.0.js</td>
-        <td>276KB</td>
-    </tr>
-  </tbody>
-</table>
-| 框架/库 | 大小 |
-| ------------- | ------------- |
-| jquery-1.11.0.js | 276KB |
-| jquery-1.11.0.min.js | 94KB |
-| angular-1.2.15.js | | 729KB |
-| angular-1.2.15.min.js | 101KB |
-| bootstrap-3.1.1.css | 118KB |
-| bootstrap-3.1.1.min.css | 98KB |
-| foundation-5.css | 186KB |
-| foundation-5.min.css | 146KB |
-| uee/app.js | 1.6MB |
-| uee/app.datetime.js | 256KB|
+
+框架/库 | 大小 
+--- | ---
+jquery-1.11.0.js | 276KB
+jquery-1.11.0.min.js | 94KB
+angular-1.2.15.js | 729KB
+angular-1.2.15.min.js | 101KB
+bootstrap-3.1.1.css | 118KB
+bootstrap-3.1.1.min.css | 98KB
+foundation-5.css | 186KB
+foundation-5.min.css | 146KB
+uee/app.js | 1.6MB
+uee/app.datetime.js | 256KB
+
 看CKM的首页加载资源大小：
 
 
