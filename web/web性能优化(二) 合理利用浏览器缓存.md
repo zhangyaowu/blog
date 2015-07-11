@@ -9,7 +9,6 @@ web性能优化(四) 合并、删除js和样式表&利用chrome developer tools�
 * http request和response中缓存相关概念
 * tomcat DefaultServlet源码解读，解析tomcat对静态资源的缓存处理策略
 * CKM缓存最佳实践
-
 #####http request和response中缓存相关概念
 浏览器第一次访问一个网页，会下载页面需要的所有资源。通过网络获取内容既缓慢，成本又高。http1.1(即rfc2616)定义了多种缓存方式，可能出现在请求头或者响应头的属性可能有这些：
 
@@ -29,7 +28,7 @@ response中的：
 * 版本升级，已缓存的文件有修改，如何废弃客户浏览器里已缓存的资源(不要试图让客户手动清浏览器缓存，客户完全可以说我不会也不愿意)
 * 精确控制每个文件的缓存策略
 最优Cache-Control策略可以用以下决策树来制定：
-
+![](https://github.com/kaelhuawei/blog/blob/master/web/images/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%BA%8C)%20%E5%90%88%E7%90%86%E5%88%A9%E7%94%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BC%93%E5%AD%98/Cache-Control%20decision%20tree.jpg)  
 我给CKM制定的缓存策略是：
 不启用ETag，启用Last-Modified,html:no-cache,others:Last-Modified,Cache-Control:max-age=1892160000,静态资源文件带版本号
 
@@ -54,7 +53,8 @@ protected void serveResource(HttpServletRequest request, HttpServletResponse res
     }
     CacheEntry cacheEntry = this.resources.lookupCache(path);//从缓存中取出本次请求的资源
 
-缓存的静态文件在容器启动的时候加载，注意attribute属性，默认初始是有文件的lastModified和ETag属性的。
+缓存的静态文件在容器启动的时候加载，注意attribute属性，默认初始是有文件的lastModified和ETag属性的。  
+![](https://github.com/kaelhuawei/blog/blob/master/web/images/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%BA%8C)%20%E5%90%88%E7%90%86%E5%88%A9%E7%94%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BC%93%E5%AD%98/cacheEntry.jpg)  
 if (!cacheEntry.exists)
 {
     String requestUri = (String)request.getAttribute("javax.servlet.include.request_uri");
