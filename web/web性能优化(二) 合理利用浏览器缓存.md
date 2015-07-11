@@ -1,7 +1,6 @@
 ####系列文章包括：
 [web性能优化(一) 使用压缩传输](https://github.com/kaelhuawei/blog/blob/master/web/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%B8%80)%20%E4%BD%BF%E7%94%A8%E5%8E%8B%E7%BC%A9%E4%BC%A0%E8%BE%93.md)  
-web性能优化(二)合理利用cache-control(本篇) 
-"web性能优化(二)合理利用cache-control")  
+web性能优化(二)合理利用cache-control(本篇)  
 web性能优化(三) uglify静态文件&前端工程化(待写)  
 web性能优化(四) 合并、删除js和样式表&利用chrome developer tools做页面性能分析(待写)   
 ***  
