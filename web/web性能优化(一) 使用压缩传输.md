@@ -29,7 +29,7 @@ uee/app.datetime.js | 256KB
 * 压缩仅仅是减少了网络传输量
 * 消除不必要的数据是最好的（见 web性能优化(四) 合并、删除js和样式表&利用chrome developer tools做页面性能分析）
 * 压缩技术和算法有很多种，这边文章里没有特别指定的话特指gzip算法
-* 启用压缩传输需要服务器支持，这篇文章只介绍tomcat如何启用压缩传输
+* 启用压缩传输需要服务器支持，这篇文章只介绍tomcat如何启用压缩传输  
 先来看教科书google的请求：  
 ![](https://github.com/kaelhuawei/blog/blob/master/web/images/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%B8%80)%20%E4%BD%BF%E7%94%A8%E5%8E%8B%E7%BC%A9%E4%BC%A0%E8%BE%93/google%20s%20request%20and%20response.jpg)  
 
