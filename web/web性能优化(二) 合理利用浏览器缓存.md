@@ -94,7 +94,7 @@ if ((cacheEntry.context == null) && ((path.endsWith("/")) || (path.endsWith("\\"
     }
 }
 ```  
-需要重点看checkIfHeaders(request, response, cacheEntry.attributes)方法。  
+需要重点看checkIfHeaders(request, response, cacheEntry.attributes)这几个方法。  
 ```java
 protected boolean checkIfHeaders(HttpServletRequest request, HttpServletResponse response, ResourceAttributes resourceAttributes) throws IOException
 {
