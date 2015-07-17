@@ -48,7 +48,7 @@ compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,tex
 ```
 其中，  
 * compression="on"启用response压缩传输能力
-* compressionMinSize="2048"超过2k的文件才压缩传输
+* compressionMinSize="2048"超过2kb的文件才压缩传输
 * CompressionUserAgents="gozilla,traviata"不启用压缩传输的浏览器
 * compressableMimeType需要压缩传输的文件Mine
 
