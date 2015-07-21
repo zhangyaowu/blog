@@ -21,11 +21,11 @@ foundation-5.min.css | 146KB
 uee/app.js | 1.6MB
 uee/app.datetime.js | 256KB
 
-看CKM的首页加载资源大小：  
+某应用的首页加载资源大小：  
 ![](https://github.com/kaelhuawei/blog/blob/master/web/images/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%B8%80)%20%E4%BD%BF%E7%94%A8%E5%8E%8B%E7%BC%A9%E4%BC%A0%E8%BE%93/tagstore%20all%20resources%20.jpg)  
-标签详情页面加载资源大小：  
+某应用标签详情页面加载资源大小：  
 ![](https://github.com/kaelhuawei/blog/blob/master/web/images/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%B8%80)%20%E4%BD%BF%E7%94%A8%E5%8E%8B%E7%BC%A9%E4%BC%A0%E8%BE%93/tagdetail%20all%20resource.jpg)  
-简直令人发指了，分别加载了2.8M和5.8M的资源！减少资源大小有两个途径，减小资源原始大小和减小网络传输大小。减小资源原始大小即ugilify JS/CSS、合并脚本等，这个涉及前端工程化的咚咚，单独写一篇文章分析（web性能优化(三) ugilify静态文件&前端工程化），这篇文章谈谈怎么压缩组件以减小网络传输大小来优化web性能。  
+简直令人发指，分别加载了2.8M和5.8M的资源！减少资源大小有两个途径，减小资源原始大小和减小网络传输大小。减小资源原始大小即ugilify JS/CSS、合并脚本等，这个涉及前端工程化的咚咚，单独写一篇文章分析（web性能优化(三) ugilify静态文件&前端工程化），这篇文章谈谈怎么压缩组件以减小网络传输大小来优化web性能。  
 从HTTP1.1开始，web客户端可以在HTTP请求中添加Accept-Encoding头来表示对压缩的支持，如：Accept-Encoding:gzip, deflate, sdch  
 客户端在response中以Content-Encoding头来通知客户端响应的编码格式，如Content-Encoding:gzip  
 需要注意的是：  
@@ -55,7 +55,8 @@ compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,tex
 
 关于compressionMinSize要补充说一些，这个配置项存在的意义是，如果一个文件压缩前就足够小，当gzip字典大于压缩产生的节省字节数时，会出现压缩后的大小比原始大小还要打的情况。所以合理的设置一个阈值有重要的意义。  
 #####关于缓存代理和reponse中的Vary头
-
+浏览器直接与服务器交互时，上面的配置能很好的工作。当浏览器通过代理发送请求时，情况就变得复杂了。假设访问某个URL的第一个请求来自某个不支持gzip的浏览器，经过代理转发到服务端的请求返回的响应是未压缩的资源，当请求同样URL的第二个请求来自支持gzip的浏览器时，代理商缓存的是未压缩的版本，代理不会去服务端请求压缩版本的资源。而如果第一次请求来自支持gzip的浏览器，后续的请求来自不支持gzip的浏览器，这种情形错误就更严重了。  
+针对这个问题，就需要Vary头出场了，web服务器告诉代理根据一个或者多个请求头来改变缓存的响应。如在reponse中加这样的头：Vary: Accept-Ecoding.
 #####效果
 有人专门统计过，gzip传输大约能将响应整体减小66%。
 看一下启用compression以后，某应用的前后效果：  
