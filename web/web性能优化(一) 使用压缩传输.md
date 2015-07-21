@@ -41,9 +41,7 @@ uee/app.datetime.js | 256KB
 [tomcat的文档](https://tomcat.apache.org/tomcat-7.0-doc/config/http.html#Connector_Comparison "")对connector的compression属性是这么描述的：  
 The Connector may use HTTP/1.1 GZIP compression in an attempt to save server bandwidth. The acceptable values for the parameter is "off" (disable compression), "on" (allow compression, which causes text data to be compressed), "force" (forces compression in all cases), or a numerical integer value (which is equivalent to "on", but specifies the minimum amount of data before the output is compressed). If the content-length is not known and compression is set to "on" or more aggressive, the output will also be compressed. If not specified, this attribute is set to "off".
 Note: There is a tradeoff between using compression (saving your bandwidth) and using the sendfile feature (saving your CPU cycles). If the connector supports the sendfile feature, e.g. the NIO connector, using sendfile will take precedence over compression. The symptoms will be that static files greater that 48 Kb will be sent uncompressed. You can turn off sendfile by setting useSendfile attribute of the connector, as documented below, or change the sendfile usage threshold in the configuration of the DefaultServlet in the default conf/web.xml or in the web.xml of your web application.
-支持compression的connector有BIO, NIO 和 APR/native.
-
-***
+支持compression的connector有BIO, NIO 和 APR/native.  
 #####tomcat的典型配置：  
 ```xml
 compression="on" compressionMinSize="2048" noCompressionUserAgents="gozilla,traviata"
@@ -56,6 +54,8 @@ compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,tex
 * compressableMimeType需要压缩传输的文件Mine，典型的html、js、css都应该被压缩，设置是超过一定大小的json。图片和pdf不应该被压缩，因为它们本来已经被压缩过了，再压缩只会浪费CPU资源，还有可能会增加文件大小
 
 关于compressionMinSize要补充说一些，这个配置项存在的意义是，如果一个文件压缩前就足够小，当gzip字典大于压缩产生的节省字节数时，会出现压缩后的大小比原始大小还要打的情况。所以合理的设置一个阈值有重要的意义。  
+#####关于缓存代理和reponse中的Vary头
+
 #####效果
 有人专门统计过，gzip传输大约能将响应整体减小66%。
 看一下启用compression以后，某应用的前后效果：  
