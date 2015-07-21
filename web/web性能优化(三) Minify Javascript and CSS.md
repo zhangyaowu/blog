@@ -9,4 +9,4 @@
 
 
 ***
-*这个好事者是Steve Souders, Yahoo!的前端工程师，数据来自他的书<High Performance Web Sites>
+*这个好事者是Steve Souders, Yahoo!的前端工程师，数据来自他的书<<High Performance Web Sites>>
