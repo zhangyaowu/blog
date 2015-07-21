@@ -5,6 +5,7 @@ web性能优化(一) 使用压缩传输(本篇)
 web性能优化(三) uglify静态文件&前端工程化(待写)  
 web性能优化(四) 合并、删除js和样式表&利用chrome developer tools做页面性能分析(待写)   
 ***
+#####背景
 企业级J2EE应用，大部分情况运行在企业内部网络，千兆网甚至万兆网。所以web性能是一个比较容易被忽略的问题。过去的 web应用还没有现在百花齐放的框架和类库，往往打开一个页面加载的资源可能只有几十K，大部分情况不超过200K，所以每打开页面加载的资源量一直不被关注。但是，一旦把应用部署到公网、或者网络条件不是太好的时候，页面加载缓慢的问题就一下子暴露出来了。并且现在前端框架和类库百花齐放，下面是当今流行的框架和类库的原始大小和压缩后的大小:  
 
 框架/库 | 大小 
@@ -43,7 +44,7 @@ Note: There is a tradeoff between using compression (saving your bandwidth) and 
 支持compression的connector有BIO, NIO 和 APR/native.
 
 ***
-tomcat的典型配置：  
+#####tomcat的典型配置：  
 ```xml
 compression="on" compressionMinSize="2048" noCompressionUserAgents="gozilla,traviata"
 compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,text/json,application/x-javascript,application/javascript,application/json"
@@ -55,7 +56,10 @@ compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,tex
 * compressableMimeType需要压缩传输的文件Mine，典型的html、js、css都应该被压缩，设置是超过一定大小的json。图片和pdf不应该被压缩，因为它们本来已经被压缩过了，再压缩只会浪费CPU资源，还有可能会增加文件大小
 
 关于compressionMinSize要补充说一些，这个配置项存在的意义是，如果一个文件压缩前就足够小，当gzip字典大于压缩产生的节省字节数时，会出现压缩后的大小比原始大小还要打的情况。所以合理的设置一个阈值有重要的意义。  
-看一下启用compression以后，首页的前后效果：  
+#####效果
+有人专门统计过，gzip传输大约能将响应整体减小66%。
+看一下启用compression以后，某应用的前后效果：  
+首页：  
 ![](https://github.com/kaelhuawei/blog/blob/master/web/images/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%B8%80)%20%E4%BD%BF%E7%94%A8%E5%8E%8B%E7%BC%A9%E4%BC%A0%E8%BE%93/tagstore%20all%20resources%20.jpg)  
 ![](https://github.com/kaelhuawei/blog/blob/master/web/images/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%B8%80)%20%E4%BD%BF%E7%94%A8%E5%8E%8B%E7%BC%A9%E4%BC%A0%E8%BE%93/tagstore%20after%20compression.jpg)  
 标签详情的前后效果：  
