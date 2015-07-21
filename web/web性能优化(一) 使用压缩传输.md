@@ -2,7 +2,7 @@
 web性能优化(一) 使用压缩传输(本篇)  
 [web性能优化(二) 合理利用cache-control](https://github.com/zhangyaowu/blog/blob/master/web/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%BA%8C)%20%E5%90%88%E7%90%86%E5%88%A9%E7%94%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BC%93%E5%AD%98.md  
 "web性能优化(二)合理利用cache-control")  
-web性能优化(三) Minify Javascript&前端工程化(待写)   
+web性能优化(三) Minify Javascript and CSS   
 web性能优化(四) 合并、删除js和样式表&利用chrome developer tools做页面性能分析(待写)   
 ***
 #####背景
@@ -25,7 +25,7 @@ uee/app.datetime.js | 256KB
 ![](https://github.com/kaelhuawei/blog/blob/master/web/images/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%B8%80)%20%E4%BD%BF%E7%94%A8%E5%8E%8B%E7%BC%A9%E4%BC%A0%E8%BE%93/tagstore%20all%20resources%20.jpg)  
 某应用标签详情页面加载资源大小：  
 ![](https://github.com/kaelhuawei/blog/blob/master/web/images/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%B8%80)%20%E4%BD%BF%E7%94%A8%E5%8E%8B%E7%BC%A9%E4%BC%A0%E8%BE%93/tagdetail%20all%20resource.jpg)  
-这是令人发指的和不能接受的，分别加载了2.8M和5.8M的资源！优化性能减少资源大小有两个途径，减小资源原始大小和减小网络传输大小。减小资源原始大小即ugilify JS/CSS、合并脚本等，这个涉及前端工程化的咚咚，单独写一篇文章分析（web性能优化(三) ugilify静态文件&前端工程化），这篇文章谈谈怎么压缩组件以减小网络传输大小来优化web性能。  
+这是令人发指的和不能接受的，分别加载了2.8M和5.8M的资源！优化性能减少资源大小有两个途径，减小资源原始大小和减小网络传输大小。减小资源原始大小即ugilify JS/CSS、合并脚本等，这个涉及前端工程化的咚咚，单独写一篇文章分析（web性能优化(三) Minify Javascript and CSS），这篇文章谈谈怎么压缩组件以减小网络传输大小来优化web性能。  
 
 从HTTP1.1开始，web客户端可以在HTTP请求中添加Accept-Encoding头来表示对压缩的支持，如：Accept-Encoding:gzip, deflate, sdch  
 客户端在response中以Content-Encoding头来通知客户端响应的编码格式，如Content-Encoding:gzip  
