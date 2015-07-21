@@ -52,7 +52,7 @@ compressableMimeType="text/html,text/xml,text/plain,text/css,text/javascript,tex
 * compression="on"启用response压缩传输能力
 * compressionMinSize="2048"超过2kb的文件才压缩传输
 * CompressionUserAgents="gozilla,traviata"不启用压缩传输的浏览器
-* compressableMimeType需要压缩传输的文件Mine
+* compressableMimeType需要压缩传输的文件Mine，典型的html、js、css都应该被压缩，设置是超过一定大小的json。图片和pdf不应该被压缩，因为它们本来已经被压缩过了，再压缩只会浪费CPU资源，还有可能会增加文件大小
 
 关于compressionMinSize要补充说一些，这个配置项存在的意义是，如果一个文件压缩前就足够小，当gzip字典大于压缩产生的节省字节数时，会出现压缩后的大小比原始大小还要打的情况。所以合理的设置一个阈值有重要的意义。  
 看一下启用compression以后，首页的前后效果：  
