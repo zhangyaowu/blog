@@ -8,10 +8,10 @@ web性能优化(四) 合并、删除js和样式表&利用chrome developer tools�
 ####提纲：
 * http request和response中缓存相关概念
 * tomcat DefaultServlet源码解读，解析tomcat对静态资源的缓存处理策略
-* CKM缓存最佳实践  
+* 某应用的缓存最佳实践  
 
 ####http request和response中缓存相关概念
-浏览器一个网页，第一次访问时会下载页面需要的所有资源。通过网络获取内容既缓慢，成本又高。http1.1(rfc2616)定义了多种缓存方式，可能出现在请求头或者响应头的属性可能有这些：  
+浏览器一个网页，第一次访问时会下载页面需要的所有资源。通过网络获取内容既缓慢，成本又高。HTTP1.1(rfc2616)定义了多种缓存方式，可能出现在请求头或者响应头的属性有这些：  
 request中的：  
 * If-Modify-Since: 请求头中带的浏览器缓存里保存的上次响应时保存的文件最后修改时间
 * If-None-Match: 请求头中带的浏览器缓存里保存的上次响应时保存的文件ETag  
@@ -20,7 +20,7 @@ response中的：
 * Last-Modified: 资源的最后修改时间，注意是文件的修改时间不是创建时间
 * Etag: 即Entity Tag，标识一个文件特定版本的字符串，可能是基于文件内容的哈希值或者是其它指纹码，不同服务器实现方式不同
 * Expires: 文件的绝对过期时间，在过期前，再次请求同一文件不会和服务端交互，而是直接从缓存里取。Expires属性的行为受Cache-Control属性影响，当响应头里同时又Cache-Control属性，且Cache-Control属性的值有max-age时，max-age优先级大于Expires，会重写Expires的值。Expires因为使用绝对时间，所以它的缺点是需要客户端和服务端保持时间同步，它的优点是在文件过期前和服务端完全没有交互，对于追求性能极致的网站有很大的诱惑力。且Expires属性是http1.0定义的，对于不支持http1.1的浏览器来说很宝贵
-* Cache-Control: 缓存控制策略，值可能有public/private max-age=xxxx/no-store/no-cache，public/private定义文件是否允许中继缓存(比如CDN)对其缓存，private仅允许浏览器缓存文件而不允许中继缓存存储文件，public都允许。max-age=xxxx/no-store/no-cache定义文件的缓存时长，max-age定义文件在指定的时间内无需去服务端检查是否有更新，单位是秒；no-store简单粗暴，禁止任何中继缓存和浏览器存储任何响应；no-cache指定浏览器每次都要去服务端检查文件是否有更新。检查更新的途径有多种，第一种是根据文件修改时间，request带If-Modify-Since即上次response中的Last-Modified，去服务端校验文件是否更新；二是根据文件的ETag，request带If-None-Match即上次response中的Etag，去服务端校验文件是否更新。我知道你一定会问request中f-Modify-Since和If-None-Match都有的话，是满足一个服务端就返回304吗？答案是否定的，需要两者都满足才会返回304，这篇文章的下半部分Tomcat DefaultServlet源码解读将从服务端源码角度解释这个问题  
+* Cache-Control: 缓存控制策略，值可能有public/private max-age=xxxx/no-store/no-cache。public/private定义文件是否允许中继缓存(比如CDN)对其缓存，private仅允许浏览器缓存文件而不允许中继缓存存储文件，public都允许。max-age=xxxx/no-store/no-cache定义文件的缓存时长，max-age定义文件在指定的时间内无需去服务端检查是否有更新，单位是秒；no-store简单粗暴，禁止任何中继缓存和浏览器存储任何响应；no-cache指定浏览器每次都要去服务端检查文件是否有更新。检查更新的途径有多种，第一种是根据文件修改时间，request带If-Modify-Since即上次response中的Last-Modified，去服务端校验文件是否更新；二是根据文件的ETag，request带If-None-Match即上次response中的Etag，去服务端校验文件是否更新。我知道你一定会问request中f-Modify-Since和If-None-Match都有的话，是满足一个服务端就返回304吗？答案是否定的，需要两者都满足才会返回304，这篇文章的下半部分Tomcat DefaultServlet源码解读将从服务端源码角度解释这个问题  
 * Vary: [参考这里](https://github.com/zhangyaowu/blog/blob/master/web/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%B8%80)%20%E4%BD%BF%E7%94%A8%E5%8E%8B%E7%BC%A9%E4%BC%A0%E8%BE%93.md#关于缓存代理和reponse中的vary头)  
 关于ETag需要补充说一下，用还是不用是颇有争议的。ETag的问题一，企业级J2EE一般集群组网，大部分服务器(IIS、Apache)不同的节点对同一文件计算出来的Etag值是不一样的，如果不同次的请求分在不同的服务端，不重复下载文件这个初始的愿望就实现不了。ETag的另一个问题是Etag本身的计算就是一笔开销。对于必须通过最新修改日期之外的一些东西来验证的情况，规避这个问题可以通过简化Etag算法，减少ETag内容，如移除inode值、对于集群组网问题限制负载算法，如同一个sessionId或者source IP的请求落在相同的服务端节点上等。我的建议是根据最新修改日期能cover住的就去除ETag  
 
@@ -34,7 +34,7 @@ response中的：
 最优Cache-Control策略可以用以下决策树来制定：  
 ![](https://github.com/kaelhuawei/blog/blob/master/web/images/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%BA%8C)%20%E5%90%88%E7%90%86%E5%88%A9%E7%94%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BC%93%E5%AD%98/Cache-Control%20decision%20tree.jpg)  
 
-我给CKM制定的缓存策略是：  
+某应用根据应用的特点、组网类型等制定的缓存策略是：  
 * 不启用ETag
 * 启用Last-Modified
 * html:no-cache,others:Last-Modified,Cache-Control:max-age=1892160000
@@ -237,7 +237,7 @@ if (contentLength == 0L) {
 ``` 
 serveResource剩余代码，向response的流中写响应。  
 
-####CKM缓存最佳实践
+####某应用缓存最佳实践
 * disable ETag
 ```xml
 <filter>
