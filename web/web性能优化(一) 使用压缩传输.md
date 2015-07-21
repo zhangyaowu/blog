@@ -1,5 +1,5 @@
 ####系列文章包括：
-web性能优化(一) 使用压缩传输(本篇)  
+web性能优化(一) 使用压缩传输  
 [web性能优化(二) 合理利用cache-control](https://github.com/zhangyaowu/blog/blob/master/web/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%BA%8C)%20%E5%90%88%E7%90%86%E5%88%A9%E7%94%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BC%93%E5%AD%98.md  
 "web性能优化(二)合理利用cache-control")  
 [web性能优化(三) Minify Javascript and CSS](https://github.com/zhangyaowu/blog/blob/master/web/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%B8%89)%20Minify%20Javascript%20and%20CSS.md)   
