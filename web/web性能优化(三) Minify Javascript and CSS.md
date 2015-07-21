@@ -8,4 +8,5 @@
 所以在项目中，投入收益比权衡中选择什么技术手段非常明显了。
 
 
+***
 *这个好事者是Steve Souders, Yahoo!的前端工程师，数据来自他的书<High Performance Web Sites>
