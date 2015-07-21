@@ -16,4 +16,4 @@ web性能优化(四) 合并、删除js和样式表&利用chrome developer tools�
 
 
 ***
-*这个好事者是Steve Souders, Yahoo!的前端工程师，数据来自他的书High Performance Web Sites
+*这位好事者是Steve Souders, Yahoo!的前端工程师，数据来自他的书High Performance Web Sites
