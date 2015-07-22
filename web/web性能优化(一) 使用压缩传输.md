@@ -3,7 +3,7 @@ web性能优化(一) 使用压缩传输
 [web性能优化(二) 合理利用cache-control](https://github.com/zhangyaowu/blog/blob/master/web/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%BA%8C)%20%E5%90%88%E7%90%86%E5%88%A9%E7%94%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BC%93%E5%AD%98.md  
 "web性能优化(二)合理利用cache-control")  
 [web性能优化(三) Minify Javascript and CSS](https://github.com/zhangyaowu/blog/blob/master/web/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%B8%89)%20Minify%20Javascript%20and%20CSS.md)   
-web性能优化(四) 合并、删除js和样式表&利用chrome developer tools做页面性能分析(待写)   
+web性能优化(四) 使用chrome developer tools做页面性能分析和需找页面性能优化点(待写)   
 ***
 #####背景
 企业级J2EE应用，大部分情况运行在企业内部网络，千兆网甚至万兆网。所以web性能是一个比较容易被忽略的问题。过去的 web应用还没有现在百花齐放的框架和类库，往往打开一个页面加载的资源可能只有几十K，大部分情况不超过200K，所以每打开页面加载的资源量一直不被关注。但是，一旦把应用部署到公网、或者网络条件不是太好的时候，页面加载缓慢的问题就一下子暴露出来了。并且现在前端框架和类库百花齐放，下面是当今流行的框架和类库的大小:  
