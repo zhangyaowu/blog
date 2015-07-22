@@ -2,7 +2,7 @@
 [web性能优化(一) 使用压缩传输](https://github.com/zhangyaowu/blog/blob/master/web/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%B8%80)%20%E4%BD%BF%E7%94%A8%E5%8E%8B%E7%BC%A9%E4%BC%A0%E8%BE%93.md)  
 web性能优化(二) 合理利用cache-control  
 [web性能优化(三) Minify Javascript and CSS](https://github.com/zhangyaowu/blog/blob/master/web/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%B8%89)%20Minify%20Javascript%20and%20CSS.md)  
-web性能优化(四) 合并、删除js和样式表&利用chrome developer tools做页面性能分析(待写)   
+web性能优化(四) 使用chrome developer tools做页面性能分析和需找页面性能优化点(待写)   
 ***  
 
 ####提纲：
