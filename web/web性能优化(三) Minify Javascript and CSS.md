@@ -3,7 +3,7 @@
 [web性能优化(二) 合理利用cache-control](https://github.com/zhangyaowu/blog/blob/master/web/web%E6%80%A7%E8%83%BD%E4%BC%98%E5%8C%96(%E4%BA%8C)%20%E5%90%88%E7%90%86%E5%88%A9%E7%94%A8%E6%B5%8F%E8%A7%88%E5%99%A8%E7%BC%93%E5%AD%98.md  
 "web性能优化(二)合理利用cache-control")  
 web性能优化(三) Minify Javascript and CSS  
-web性能优化(四) 合并、删除js和样式表&利用chrome developer tools做页面性能分析(待写)   
+web性能优化(四) 使用chrome developer tools做页面性能分析和需找页面性能优化点(待写)   
 ***
 精简(minification)js和css包括，移除不必要的字符（空白、换行、制表符）以减小其大小。更深入和复杂一点的是混淆(obfuscation)，在源码层面上进行的另外一种优化方式，它也会移除多余字符，除此之外还会改写函数和变量名，替换为更短的字符串。混淆的过程很复杂，而且极易引入错误。  
 
