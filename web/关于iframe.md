@@ -1,12 +1,12 @@
-iframe的使用场景是主页面上嵌套不同域的独立页面。比如互联网上的广告。
+iframe的使用场景是主页面上嵌套不同域的独立页面。比如互联网上的广告。  
 
-使用得当的话iframe确实能带来页面加载的加速，但往往我们都在以损耗性能的方式在使用iframe。iframe的加载特点决定了iframe极容易引入性能问题：
+使用得当的话iframe确实能带来页面加载的加速，但往往我们都在以损耗性能的方式在使用iframe。iframe的加载特点决定了iframe极容易引入性能问题：  
 
 当iframe前面有外部脚本时，主页面的外部脚本的下载是阻塞iframe资源加载的。
 * 当iframe前面有样式表，在firefox和IE中，样式表阻塞了iframe资源的加载，chrome和safari则不会。
 * iframe的加载阻塞了主页面的onload事件。这给用户的直觉就是页面未加载完、按钮不可用、涉及表单输入框未对焦等。
 * CKM中iframe使用情况：标签创建页面、标签详情页面。
 
-标签创建的主页面是bme的usl，规则部分是个iframe。这里的问题是主页面bme框架加载了45个CSS、73个javascript，而这些资源在页面上大部分是没用的。而主体的规则部分位于一个iframe中。
+标签创建的主页面是bme的usl，规则部分是个iframe。这里的问题是主页面bme框架加载了45个CSS、73个javascript，而这些资源在页面上大部分是没用的。而主体的规则部分位于一个iframe中。  
 
-标签详情部分问题更严重。本意我猜测是只是为了使用json到规则自然语言的解析能力这部分javascript api，而为此引用了一整个iframe。这个iframe在页面上是display的，带来额外53个javascript和23个css的无用资源。除了这个iframe的无效资源的额外开销，关键问题是iframe加载期间阻塞了整个标签详情页面的onload事件。
+标签详情部分问题更严重。本意我猜测是只是为了使用json到规则自然语言的解析能力这部分javascript api，而为此引用了一整个iframe。这个iframe在页面上是display的，带来额外53个javascript和23个css的无用资源。除了这个iframe的无效资源的额外开销，关键问题是iframe加载期间阻塞了整个标签详情页面的onload事件。  
